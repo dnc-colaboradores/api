@@ -6,3 +6,35 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  username      String   @unique
+  password_hash String
+  role          UserRole
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Collaborator {
+  id              String   @id @default(uuid())
+  matricula       String   @unique
+  nome            String
+  email           String   @unique
+  cpf_cnpj        String   @unique
+  cargo           String?
+  data_nascimento DateTime?
+  ativo           Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("collaborators")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
