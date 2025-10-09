@@ -2,6 +2,8 @@ const express = require('express');
 const { connectDB } = require('./src/config/database');
 const collaboratorRoutes = require('./src/routes/collaboratorsRoutes.js'); 
 const userRoutes = require('./src/routes/userRoutes.js');
+const authRoutes = require('./src/routes/authRoutes.js');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -19,7 +21,7 @@ app.get('/', (req, res) =>{
 })
 
 app.use('/users', userRoutes);
-
+app.use('/auth', authRoutes);
 app.use('/collaborators', collaboratorRoutes);
 
 app.listen(port, () => {
