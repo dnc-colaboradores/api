@@ -25,7 +25,7 @@ class JWTUtils {
 
   static extractTokenFromHeader(authHeader) {
     if (!authHeader) {
-      throw new Error("Token não fornecido");
+      throw new Error("Usuário não logado");
     }
 
     const [bearer, token] = authHeader.split(" ");
