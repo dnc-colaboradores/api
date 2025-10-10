@@ -59,8 +59,37 @@ async function getCollaboratorById(req, res) {
   }
 }
 
+// Deletar colaborador
+async function deleteCollaboratoryById(req, res) {
+  try{
+    const { id } = req.params;
+
+    const collaborator = await prisma.collaborator.findUnique({
+      where: { id: Number(id) }
+    })
+
+    if(!collaborator){
+      return res.status(404).json({ message: "Colaborador não encontrado" })
+    }
+
+    const colaboradorDeletado = await prisma.collaborator.delete({
+      where: { id: Number(id) }
+    })
+
+    return res.status(200).json({
+      message: "Colaborador deletado com sucesso!",
+      colaborador: colaboradorDeletado
+    })
+
+  } catch (error) {
+    console.error("Erro ao deletar um colaborador!", error);
+    return res.status(500).json({ error: "Erro ao deletar o colaborador!" })
+  }
+}
+
 module.exports = {
   getAllCollaborators,
   createCollaborator,
-  getCollaboratorById
+  getCollaboratorById,
+  deleteCollaboratoryById
 };
