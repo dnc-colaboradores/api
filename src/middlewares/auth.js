@@ -1,8 +1,14 @@
 const JWTUtils = require('../utils/jwt');
+const revokedTokenService = require('../services/revokedTokenService');
 
 const authenticate = (req, res, next) => {
   try {
     const token = JWTUtils.extractTokenFromHeader(req.headers.authorization);
+
+    if (revokedTokenService.isBlacklisted(token)) {
+      throw new Error('token Invalidado - faça o login novamente')
+    }
+
     const decoded = JWTUtils.verifyToken(token)
 
     req.user = decoded;

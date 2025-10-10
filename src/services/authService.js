@@ -1,5 +1,7 @@
 const userService = require('./userService');
 const JWTUtils = require('../utils/jwt');
+const RevokedTokenService = require('./revokedTokenService');
+const revokedTokenService = require('./revokedTokenService');
 
 class AuthService {
   async login(credentials) {
@@ -35,10 +37,25 @@ class AuthService {
 
   async verifyToken(token) {
     try {
+      if (RevokedTokenService.isBlacklisted(token)) {
+        throw new Error('Token invalidado - usuário fez logout');
+      }
+
       const decoded = JWTUtils.verifyToken(token)
       return decoded;
     } catch (error) {
       throw new Error(`Token Inválido: ${error.message}`)
+    }
+  }
+
+  async logout(token) {
+    try {
+      const decoded = JWTUtils.verifyToken(token);
+
+      revokedTokenService.addToBlacklist(token);
+      return { message: 'Logout realizado com sucesso'}
+    } catch (error) {
+      throw new Error(`Erro no logout: ${error.message}`)
     }
   }
 }
