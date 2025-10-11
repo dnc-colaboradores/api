@@ -59,8 +59,44 @@ async function getCollaboratorById(req, res) {
   }
 }
 
+// Atualizar colaborador por ID
+async function updateCollaborator(req, res) {
+  try {
+    const { id } = req.params;
+    const { matricula, nome, email, cpf_cnpj, cargo, data_nascimento } = req.body;
+
+    if (!matricula || !nome || !email || !cpf_cnpj) {
+      return res.status(400).json({ error: "Campos obrigatórios ausentes" });
+    }
+
+    // Verifica existência antes de atualizar
+    const existing = await prisma.collaborator.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ error: "Colaborador não encontrado" });
+    }
+
+    const updated = await prisma.collaborator.update({
+      where: { id },
+      data: {
+        matricula,
+        nome,
+        email,
+        cpf_cnpj,
+        cargo: cargo ?? null,
+        data_nascimento: data_nascimento ? new Date(data_nascimento) : null,
+      },
+    });
+
+    res.status(200).json(updated);
+  } catch (error) {
+    console.error("Erro ao atualizar colaborador:", error);
+    res.status(500).json({ error: "Erro ao atualizar colaborador" });
+  }
+}
+
 module.exports = {
   getAllCollaborators,
   createCollaborator,
-  getCollaboratorById
+  getCollaboratorById,
+  updateCollaborator
 };
