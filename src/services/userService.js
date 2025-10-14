@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
 const userSelectFields = require('../utils/userSelectFields');
 const { prisma } = require('../config/database');
 
