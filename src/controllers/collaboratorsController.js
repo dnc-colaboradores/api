@@ -12,6 +12,33 @@ async function getAllCollaborators(req, res) {
   }
 }
 
+async function checkUniqueFields(excludeId = null, matricula, email, cpf_cnpj) {
+  const whereConditions = {
+    OR: []
+  };
+
+  if (excludeId) {
+    whereConditions.OR.push({ matricula });
+  }
+  if (email) {
+    whereConditions.OR.push({ email });
+  }
+  if (cpf_cnpj) {
+    whereConditions.OR.push({ cpf_cnpj });
+  }
+
+  if (whereConditions.OR.length === 0) {
+    return null;
+  }
+
+  const existingCollaborator = await prisma.collaborator.findFirst({
+    where: whereConditions
+  })
+
+  return existingCollaborator;
+
+}
+
 // Criar colaborador
 async function createCollaborator(req, res) {
   try {
@@ -19,6 +46,28 @@ async function createCollaborator(req, res) {
 
     if (!matricula || !nome || !email || !cpf_cnpj) {
       return res.status(400).json({ error: "Campos obrigatórios ausentes" });
+    }
+
+    const existingCollaborator = await checkUniqueFields(null, matricula, email, cpf_cnpj);
+
+    if (existingCollaborator) {
+      let errorMessage = 'Dados já existentes: ';
+      const conflits = [];
+
+      if (existingCollaborator.matricula === matricula) {
+        conflits.push('matrícula');
+      }
+      if (existingCollaborator.email === email) {
+        conflits.push('rmail');
+      }
+      if (existingCollaborator.cpf_cnpj === cpf_cnpj) {
+        conflits.push('CPF/CNPJ');
+      }
+
+      errorMessage += conflits.join(', ');
+      return res.status(409).json({
+        error: errorMessage
+      })
     }
 
     const collaborator = await prisma.collaborator.create({
@@ -36,6 +85,18 @@ async function createCollaborator(req, res) {
     res.status(201).json(collaborator);
   } catch (error) {
     console.error("Erro ao criar colaborador:", error);
+
+    if (error.code === 'P2002') {
+      const field = error.meta?.target?.[0];
+      let errorMessage = 'Dados já existentes';
+      
+      if (field === 'matricula') errorMessage = 'Matrícula já está em uso';
+      else if (field === 'email') errorMessage = 'Email já está em uso';
+      else if (field === 'cpf_cnpj') errorMessage = 'CPF/CNPJ já está em uso';
+      
+      return res.status(409).json({ error: errorMessage });
+    }
+
     res.status(500).json({ error: "Erro ao criar colaborador" });
   }
 }
@@ -76,6 +137,26 @@ async function updateCollaborator(req, res) {
       return res.status(404).json({ error: "Colaborador não encontrado" });
     }
 
+    const conflictingCollaborator = await checkUniqueFields(id, matricula, email, cpf_cnpj);
+    
+    if (conflictingCollaborator) {
+      let errorMessage = 'Dados já existentes em outro colaborador: ';
+      const conflicts = [];
+      
+      if (matricula && conflictingCollaborator.matricula === matricula) {
+        conflicts.push('matrícula');
+      }
+      if (email && conflictingCollaborator.email === email) {
+        conflicts.push('email');
+      }
+      if (cpf_cnpj && conflictingCollaborator.cpf_cnpj === cpf_cnpj) {
+        conflicts.push('CPF/CNPJ');
+      }
+      
+      errorMessage += conflicts.join(', ');
+      return res.status(409).json({ error: errorMessage });
+    }
+
     const updateData = {};
 
     if (matricula !== undefined) updateData.matricula = matricula;
@@ -99,6 +180,18 @@ async function updateCollaborator(req, res) {
     });
   } catch (error) {
     console.error("Erro ao atualizar colaborador:", error);
+
+    if (error.code === 'P2002') {
+      const field = error.meta?.target?.[0];
+      let errorMessage = 'Dados já existentes em outro colaborador';
+      
+      if (field === 'matricula') errorMessage = 'Matrícula já está em uso por outro colaborador';
+      else if (field === 'email') errorMessage = 'Email já está em uso por outro colaborador';
+      else if (field === 'cpf_cnpj') errorMessage = 'CPF/CNPJ já está em uso por outro colaborador';
+      
+      return res.status(409).json({ error: errorMessage });
+    }
+    
     res.status(500).json({ error: "Erro ao atualizar colaborador" });
   }
 }
