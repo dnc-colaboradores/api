@@ -1,6 +1,5 @@
 const userService = require('./userService');
 const JWTUtils = require('../utils/jwt');
-const RevokedTokenService = require('./revokedTokenService');
 const revokedTokenService = require('./revokedTokenService');
 
 class AuthService {
