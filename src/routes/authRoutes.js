@@ -4,7 +4,7 @@ const authController = require('../controllers/authController');
 const { authenticate } = require('../middlewares/auth')
 
 router.post('/login', authController.login);
-router.post('logout', authenticate, authController.logout);
+router.post('/logout', authenticate, authController.logout);
 router.get('/verify', authController.verifyToken)
 
 module.exports = router;
