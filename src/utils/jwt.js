@@ -19,7 +19,7 @@ class JWTUtils {
     try {
       return jwt.verify(token, JWT_SECRET);
     } catch (error) {
-      throw new Error("Token inválido ou expirado");
+      throw new Error("Login expirado! Faça login novamente");
     }
   }
 
