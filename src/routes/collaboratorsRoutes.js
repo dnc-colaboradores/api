@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { getAllCollaborators, createCollaborator, getCollaboratorById, updateCollaborator, deleteCollaboratoryById } = require('../controllers/collaboratorsController');
-const { authenticate, authorizeByRole } = require('../middlewares/auth');
+const { authenticate, authorizeOwnResourceOrAdmin } = require('../middlewares/auth');
 
 // Rotas CRUD 
-router.get('/', authenticate, getAllCollaborators); // Listar
-router.get('/:id', authenticate, getCollaboratorById) // Buscar por ID
-router.post('/', authenticate, authorizeByRole(['ADMIN']), createCollaborator); // Criar
-router.put('/:id', authenticate, authorizeByRole(['ADMIN']), updateCollaborator); // Atualizar por ID
-router.delete('/:id', authenticate, authorizeByRole(['ADMIN']), deleteCollaboratoryById); // Deletar
+router.get('/', authenticate, getAllCollaborators);
+router.get('/:id', authenticate, getCollaboratorById);
+router.post('/', authenticate, authorizeOwnResourceOrAdmin, createCollaborator);
+router.put('/:id', authenticate, authorizeOwnResourceOrAdmin, updateCollaborator);
+router.delete('/:id', authenticate, authorizeOwnResourceOrAdmin, deleteCollaboratoryById);
 
 module.exports = router;
