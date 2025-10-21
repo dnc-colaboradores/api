@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -20,16 +21,16 @@ model User {
 }
 
 model Collaborator {
-  id              String   @id @default(uuid())
-  matricula       String   @unique
+  id              String    @id @default(uuid())
+  matricula       String    @unique
   nome            String
-  email           String   @unique
-  cpf_cnpj        String   @unique
+  email           String    @unique
+  cpf_cnpj        String    @unique
   cargo           String?
   data_nascimento DateTime?
-  ativo           Boolean  @default(true)
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  ativo           Boolean   @default(true)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
 
   @@map("collaborators")
 }
