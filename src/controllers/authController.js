@@ -15,9 +15,11 @@ class AuthController {
     } catch (error) {
       console.log("Erro no login: ", error);
 
-      if (error.message.includes("Credenciais inválidas")) {
-        return res.status(400).json({
-          error: error.message,
+      if (error.message.includes("Nome de usuário ou senha incorretos") || 
+          error.message.includes("Credenciais inválidas") ||
+          error.message.includes("Senha inválida")) {
+        return res.status(401).json({
+          error: "Nome de usuário ou senha incorretos",
         });
       }
 
