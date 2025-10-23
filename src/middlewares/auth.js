@@ -6,7 +6,7 @@ const authenticate = (req, res, next) => {
     const token = JWTUtils.extractTokenFromHeader(req.headers.authorization);
 
     if (revokedTokenService.isBlacklisted(token)) {
-      throw new Error('token Invalidado - faça o login novamente')
+      throw new Error('usuário desconectado! Faça o login novamente')
     }
 
     const decoded = JWTUtils.verifyToken(token)
