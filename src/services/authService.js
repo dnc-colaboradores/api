@@ -14,7 +14,8 @@ class AuthService {
       if (!user) throw new Error('Nome de usuário ou senha incorretos')
 
       const isPasswordValid = await userService.validatePassword(password, user.password_hash);
-      if (!isPasswordValid) throw new Error('Senha inválida');
+
+      if (!isPasswordValid) throw new Error('Nome de usuário ou senha incorretos');
 
       const tokenPayload = {
         id: user.id,
@@ -36,7 +37,7 @@ class AuthService {
 
   async verifyToken(token) {
     try {
-      if (RevokedTokenService.isBlacklisted(token)) {
+      if (revokedTokenService.isBlacklisted(token)) {
         throw new Error('Token invalidado - usuário fez logout');
       }
 
